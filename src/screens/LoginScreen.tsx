@@ -42,7 +42,7 @@ export const LoginScreen = ({navigation}: Props) => {
           <Text style={loginStyles.title}>Login</Text>
           <Text style={loginStyles.label}>Email:</Text>
           <TextInput
-            placeholder="Enter an email"
+            placeholder="Ingresa un correo"
             placeholderTextColor="rgba(255,255,255,0.4)"
             keyboardType="email-address"
             underlineColorAndroid="white"
