@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -15,6 +15,7 @@ import {WhiteLogo} from '../components/WhiteLogo';
 import {loginStyles} from '../theme/loginTheme';
 import {useForm} from '../hooks/useForm';
 import {StackScreenProps} from '@react-navigation/stack';
+import {AuthContext} from '../context/AuthContext';
 
 interface Props extends StackScreenProps<any, any> {}
 
@@ -24,9 +25,12 @@ export const LoginScreen = ({navigation}: Props) => {
     password: '',
   });
 
+  const {signIn} = useContext(AuthContext);
+
   const onLogin = () => {
     console.log({email, password});
     Keyboard.dismiss();
+    signIn({correo: email, password});
   };
 
   return (

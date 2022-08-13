@@ -1,6 +1,7 @@
 import React, {createContext, useReducer} from 'react';
-import {User} from '../interfaces/appInterfaces';
+import {User, LoginData} from '../interfaces/appInterfaces';
 import {authReducer, AuthState} from './authReducer';
+import coffeApi from '../api/coffeApi';
 
 type AuthContextProps = {
   errorMessage: string;
@@ -8,7 +9,7 @@ type AuthContextProps = {
   user: User | null;
   status: 'checking' | 'authenticated' | 'not-authenticated';
   singUp: () => void;
-  signIn: () => void;
+  signIn: ({correo, password}: LoginData) => void;
   logOut: () => void;
   removeError: () => void;
 };
@@ -20,14 +21,30 @@ const AuthInitialSate: AuthState = {
   errorMessage: '',
 };
 
-const AuthContext = createContext({} as AuthContextProps);
+export const AuthContext = createContext({} as AuthContextProps);
 
 export const AuthProvider = ({children}: any) => {
   const [state, dispatch] = useReducer(authReducer, AuthInitialSate);
 
   const singUp = () => {};
-  const signIn = () => {};
+
+  const signIn = async ({correo, password}: LoginData) => {
+    try {
+      const {data} = await coffeApi.auth.login({
+        correo,
+        password,
+      });
+
+      const {token, usuario: user} = data;
+
+      dispatch({type: 'signUp', payload: {token, user}});
+    } catch (error: any) {
+      console.log(error.response.data.msg);
+    }
+  };
+
   const logOut = () => {};
+
   const removeError = () => {};
 
   return (
