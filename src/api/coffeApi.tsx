@@ -6,6 +6,9 @@ const coffeApi = {
     login: (params: LoginData) => {
       return coffeClient.post<LoginResponse>('/auth/login', params);
     },
+    checkToken: () => {
+      return coffeClient.get<LoginResponse>('/auth');
+    },
   },
 };
 
