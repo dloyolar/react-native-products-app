@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,9 @@ import {
   TextInput,
   TouchableOpacity,
   Keyboard,
+  Alert,
 } from 'react-native';
+import {AuthContext} from '../context/AuthContext';
 import {WhiteLogo} from '../components/WhiteLogo';
 import {loginStyles} from '../theme/loginTheme';
 import {useForm} from '../hooks/useForm';
@@ -17,15 +19,27 @@ import {StackScreenProps} from '@react-navigation/stack';
 interface Props extends StackScreenProps<any, any> {}
 
 export const RegisterScreen = ({navigation}: Props) => {
+  const {singUp, errorMessage, removeError} = useContext(AuthContext);
   const {email, name, password, onChange} = useForm({
     email: '',
     name: '',
     password: '',
   });
 
+  useEffect(() => {
+    if (errorMessage.length === 0) {
+      return;
+    }
+    Alert.alert('Registro Incorrecto', errorMessage, [
+      {text: 'Ok', onPress: removeError},
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorMessage]);
+
   const onRegister = () => {
     console.log({email, name, password});
     Keyboard.dismiss();
+    singUp({nombre: name, correo: email, password});
   };
 
   return (
@@ -42,15 +56,15 @@ export const RegisterScreen = ({navigation}: Props) => {
           <TextInput
             placeholder="Ingresa tu nombre"
             placeholderTextColor="rgba(255,255,255,0.4)"
-            keyboardType="email-address"
+            keyboardType="default"
             underlineColorAndroid="white"
             style={[
               loginStyles.inputField,
               Platform.OS === 'ios' && loginStyles.inputFieldIOS,
             ]}
             selectionColor="white"
-            onChangeText={value => onChange(value, 'email')}
-            value={email}
+            onChangeText={value => onChange(value, 'name')}
+            value={name}
             autoCapitalize="words"
             onSubmitEditing={onRegister}
             autoCorrect={false}

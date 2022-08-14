@@ -1,5 +1,9 @@
 import coffeClient from './coffeClient';
-import {LoginData, LoginResponse} from '../interfaces/appInterfaces';
+import {
+  LoginData,
+  LoginResponse,
+  RegisterData,
+} from '../interfaces/appInterfaces';
 
 const coffeApi = {
   auth: {
@@ -8,6 +12,9 @@ const coffeApi = {
     },
     checkToken: () => {
       return coffeClient.get<LoginResponse>('/auth');
+    },
+    signup: (params: RegisterData) => {
+      return coffeClient.post<LoginResponse>('/usuarios', params);
     },
   },
 };

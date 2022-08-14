@@ -2,7 +2,7 @@ import React, {createContext, useEffect, useReducer} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {authReducer, AuthState} from './authReducer';
-import {User, LoginData} from '../interfaces/appInterfaces';
+import {User, LoginData, RegisterData} from '../interfaces/appInterfaces';
 import coffeApi from '../api/coffeApi';
 
 type AuthContextProps = {
@@ -10,7 +10,7 @@ type AuthContextProps = {
   token: string | null;
   user: User | null;
   status: 'checking' | 'authenticated' | 'not-authenticated';
-  singUp: () => void;
+  singUp: ({nombre, correo, password}: RegisterData) => void;
   signIn: ({correo, password}: LoginData) => void;
   logOut: () => void;
   removeError: () => void;
@@ -50,7 +50,19 @@ export const AuthProvider = ({children}: any) => {
     dispatch({type: 'signUp', payload: {token, user}});
   };
 
-  const singUp = () => {};
+  const singUp = async ({correo, password, nombre}: RegisterData) => {
+    try {
+      const {data} = await coffeApi.auth.signup({correo, password, nombre});
+      const {token, usuario: user} = data;
+      dispatch({type: 'signUp', payload: {token, user}});
+      await AsyncStorage.setItem('token', token);
+    } catch (error: any) {
+      dispatch({
+        type: 'addError',
+        payload: error.response.data.errors[0].msg || 'Revise la información',
+      });
+    }
+  };
 
   const signIn = async ({correo, password}: LoginData) => {
     try {
