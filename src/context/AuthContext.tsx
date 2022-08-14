@@ -1,6 +1,8 @@
-import React, {createContext, useReducer} from 'react';
-import {User, LoginData} from '../interfaces/appInterfaces';
+import React, {createContext, useEffect, useReducer} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {authReducer, AuthState} from './authReducer';
+import {User, LoginData} from '../interfaces/appInterfaces';
 import coffeApi from '../api/coffeApi';
 
 type AuthContextProps = {
@@ -26,6 +28,27 @@ export const AuthContext = createContext({} as AuthContextProps);
 export const AuthProvider = ({children}: any) => {
   const [state, dispatch] = useReducer(authReducer, AuthInitialSate);
 
+  useEffect(() => {
+    checkToken();
+  }, []);
+
+  const checkToken = async () => {
+    const storageToken = await AsyncStorage.getItem('token');
+
+    if (!storageToken) {
+      return dispatch({type: 'notAuthenticated'});
+    }
+
+    const res = await coffeApi.auth.checkToken();
+
+    if (res.status !== 200) {
+      return dispatch({type: 'notAuthenticated'});
+    }
+
+    const {token, usuario: user} = res.data;
+    dispatch({type: 'signUp', payload: {token, user}});
+  };
+
   const singUp = () => {};
 
   const signIn = async ({correo, password}: LoginData) => {
@@ -38,6 +61,7 @@ export const AuthProvider = ({children}: any) => {
       const {token, usuario: user} = data;
 
       dispatch({type: 'signUp', payload: {token, user}});
+      await AsyncStorage.setItem('token', token);
     } catch (error: any) {
       dispatch({
         type: 'addError',
