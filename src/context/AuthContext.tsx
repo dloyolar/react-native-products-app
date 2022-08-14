@@ -46,6 +46,7 @@ export const AuthProvider = ({children}: any) => {
     }
 
     const {token, usuario: user} = res.data;
+    await AsyncStorage.setItem('token', token);
     dispatch({type: 'signUp', payload: {token, user}});
   };
 
