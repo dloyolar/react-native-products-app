@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -25,7 +26,17 @@ export const LoginScreen = ({navigation}: Props) => {
     password: '',
   });
 
-  const {signIn} = useContext(AuthContext);
+  const {signIn, errorMessage, removeError} = useContext(AuthContext);
+
+  useEffect(() => {
+    if (errorMessage.length === 0) {
+      return;
+    }
+    Alert.alert('Login Incorrecto', errorMessage, [
+      {text: 'Ok', onPress: removeError},
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorMessage]);
 
   const onLogin = () => {
     console.log({email, password});
