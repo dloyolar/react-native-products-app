@@ -77,7 +77,7 @@ export const LoginScreen = ({navigation}: Props) => {
             placeholder="**********"
             placeholderTextColor="rgba(255,255,255,0.4)"
             secureTextEntry
-            keyboardType="email-address"
+            keyboardType="default"
             underlineColorAndroid="white"
             style={[
               loginStyles.inputField,
