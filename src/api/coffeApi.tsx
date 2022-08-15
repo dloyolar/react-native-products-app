@@ -2,6 +2,7 @@ import coffeClient from './coffeClient';
 import {
   LoginData,
   LoginResponse,
+  ProductsResponse,
   RegisterData,
 } from '../interfaces/appInterfaces';
 
@@ -16,6 +17,9 @@ const coffeApi = {
     signup: (params: RegisterData) => {
       return coffeClient.post<LoginResponse>('/usuarios', params);
     },
+  },
+  products: () => {
+    return coffeClient.get<ProductsResponse>('/productos');
   },
 };
 
