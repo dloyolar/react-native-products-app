@@ -1,5 +1,6 @@
-import React, {createContext, useState} from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import {Producto} from '../interfaces/appInterfaces';
+import coffeApi from '../api/coffeApi';
 
 type ProductsContextProps = {
   products: Producto[];
@@ -15,12 +16,21 @@ type ProductsContextProps = {
   uploadImage: (data: any, id: string) => Promise<void>;
 };
 
-export const ProductContext = createContext({} as ProductsContextProps);
+export const ProductsContext = createContext({} as ProductsContextProps);
 
 export const ProductsProvider = ({children}: any) => {
   const [products, setProducts] = useState<Producto[]>([]);
 
-  const loadProducts = async () => {};
+  useEffect(() => {
+    loadProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const loadProducts = async () => {
+    const {data} = await coffeApi.products();
+    // setProducts([...products, ...data.productos]);
+    setProducts([...data.productos]);
+  };
 
   const addProduct = async (categoryId: string, productName: string) => {};
 
@@ -39,7 +49,7 @@ export const ProductsProvider = ({children}: any) => {
   const uploadImage = async (data: any, id: string) => {};
 
   return (
-    <ProductContext.Provider
+    <ProductsContext.Provider
       value={{
         products,
         loadProducts,
@@ -50,6 +60,6 @@ export const ProductsProvider = ({children}: any) => {
         uploadImage,
       }}>
       {children}
-    </ProductContext.Provider>
+    </ProductsContext.Provider>
   );
 };
