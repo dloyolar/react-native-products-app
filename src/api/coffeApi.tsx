@@ -1,5 +1,6 @@
 import coffeClient from './coffeClient';
 import {
+  CategoriesResponse,
   LoginData,
   LoginResponse,
   ProductsResponse,
@@ -20,6 +21,9 @@ const coffeApi = {
   },
   products: () => {
     return coffeClient.get<ProductsResponse>('/productos');
+  },
+  categories: () => {
+    return coffeClient.get<CategoriesResponse>('/categorias');
   },
 };
 
