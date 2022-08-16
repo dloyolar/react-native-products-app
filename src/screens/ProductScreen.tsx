@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,26 +9,65 @@ import {
   TextInput,
   Button,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {Picker} from '@react-native-picker/picker';
 
 import {ProductsStackParams} from '../navigator/ProductsNavigator';
 import {useCategories} from '../hooks/useCategories';
+import {useForm} from '../hooks/useForm';
+import {ProductsContext} from '../context/ProductsContext';
 
 interface Props
   extends StackScreenProps<ProductsStackParams, 'ProductScreen'> {}
 
 export const ProductScreen = ({route, navigation}: Props) => {
-  const {id, name = ''} = route.params;
+  const {id = '', name = ''} = route.params;
+
   const {categories, isLoading} = useCategories();
-  const [selectedLanguage, setSelectedLanguage] = useState();
+  const {loadProductById, addProduct, updateProduct} =
+    useContext(ProductsContext);
+
+  const {_id, categoriaId, nombre, img, onChange, setFormValue} = useForm({
+    _id: id,
+    categoriaId: '',
+    nombre: name,
+    img: '',
+  });
 
   useEffect(() => {
     navigation.setOptions({
-      title: name || 'Nuevo Producto',
+      title: nombre || 'Sin nombre del producto',
     });
+  }, [nombre]);
+
+  useEffect(() => {
+    loadProduct();
   }, []);
+
+  const loadProduct = async () => {
+    if (id.length === 0) {
+      return;
+    }
+    const product = await loadProductById(id);
+    setFormValue({
+      _id: id,
+      categoriaId: product.categoria._id,
+      img: product.img || '',
+      nombre,
+    });
+  };
+
+  const saveOrUpdate = async () => {
+    if (id.length > 0) {
+      updateProduct(categoriaId, nombre, id);
+    } else {
+      const tempCategoriaId = categoriaId || categories[0]._id;
+      const newProduct = await addProduct(tempCategoriaId, nombre);
+      onChange(newProduct._id, '_id');
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -37,7 +76,9 @@ export const ProductScreen = ({route, navigation}: Props) => {
         <TextInput
           placeholder="Producto"
           style={styles.textInput}
-          value={name}
+          value={nombre}
+          onChangeText={value => onChange(value, 'nombre')}
+          autoCorrect={false}
         />
 
         <Text style={styles.label}>Categoria:</Text>
@@ -49,10 +90,8 @@ export const ProductScreen = ({route, navigation}: Props) => {
           />
         ) : (
           <Picker
-            selectedValue={selectedLanguage}
-            onValueChange={(itemValue, itemIndex) =>
-              setSelectedLanguage(itemValue)
-            }>
+            selectedValue={categoriaId}
+            onValueChange={value => onChange(value, 'categoriaId')}>
             {categories.map(category => (
               <Picker.Item
                 label={category.nombre}
@@ -63,17 +102,26 @@ export const ProductScreen = ({route, navigation}: Props) => {
           </Picker>
         )}
 
-        <Button title="Guardar" onPress={() => {}} color="#5856D6" />
+        <Button title="Guardar" onPress={saveOrUpdate} color="#5856D6" />
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 10,
-          }}>
-          <Button title="Cámara" onPress={() => {}} color="#5856D6" />
-          <Button title="Galería" onPress={() => {}} color="#5856D6" />
-        </View>
+        {_id && (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: 10,
+            }}>
+            <Button title="Cámara" onPress={() => {}} color="#5856D6" />
+            <Button title="Galería" onPress={() => {}} color="#5856D6" />
+          </View>
+        )}
+
+        {img && (
+          <Image
+            source={{uri: img}}
+            style={{width: '100%', height: 300, marginTop: 20}}
+          />
+        )}
       </ScrollView>
     </View>
   );
