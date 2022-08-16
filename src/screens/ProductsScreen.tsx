@@ -1,6 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useContext, useEffect} from 'react';
-import {View, Text, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import {ProductsContext} from '../context/ProductsContext';
 import {StackScreenProps} from '@react-navigation/stack';
 import {ProductsStackParams} from '../navigator/ProductsNavigator';
@@ -9,7 +16,8 @@ interface Props
   extends StackScreenProps<ProductsStackParams, 'ProductsScreen'> {}
 
 export const ProductsScreen = ({navigation}: Props) => {
-  const {products} = useContext(ProductsContext);
+  const [refreshing, setRefreshing] = useState(false);
+  const {products, loadProducts} = useContext(ProductsContext);
 
   useEffect(() => {
     navigation.setOptions({
@@ -24,6 +32,12 @@ export const ProductsScreen = ({navigation}: Props) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const loadProductsFromBackend = async () => {
+    setRefreshing(true);
+    await loadProducts();
+    setRefreshing(false);
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -43,6 +57,12 @@ export const ProductsScreen = ({navigation}: Props) => {
           </TouchableOpacity>
         )}
         ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={loadProductsFromBackend}
+          />
+        }
       />
     </View>
   );
