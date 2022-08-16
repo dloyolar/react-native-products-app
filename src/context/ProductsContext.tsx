@@ -5,7 +5,7 @@ import coffeApi from '../api/coffeApi';
 type ProductsContextProps = {
   products: Producto[];
   loadProducts: () => Promise<void>;
-  addProduct: (categoryId: string, productName: string) => Promise<void>;
+  addProduct: (categoryId: string, productName: string) => Promise<Producto>;
   updateProduct: (
     categoryId: string,
     productName: string,
@@ -23,7 +23,6 @@ export const ProductsProvider = ({children}: any) => {
 
   useEffect(() => {
     loadProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadProducts = async () => {
@@ -32,18 +31,31 @@ export const ProductsProvider = ({children}: any) => {
     setProducts([...data.productos]);
   };
 
-  const addProduct = async (categoryId: string, productName: string) => {};
+  const addProduct = async (
+    categoryId: string,
+    productName: string,
+  ): Promise<Producto> => {
+    const params = {categoria: categoryId, nombre: productName};
+    const {data} = await coffeApi.addProduct(params);
+    setProducts([...products, data]);
+    return data;
+  };
 
   const updateProduct = async (
     categoryId: string,
     productName: string,
     productId: string,
-  ) => {};
+  ) => {
+    const params = {nombre: productName, categoria: categoryId};
+    const {data} = await coffeApi.updateProduct(productId, params);
+    setProducts(products.map(prod => (prod._id === productId ? data : prod)));
+  };
 
   const deleteProduct = async (id: string) => {};
 
   const loadProductById = async (id: string) => {
-    throw new Error('Not implemented');
+    const {data} = await coffeApi.productById(id);
+    return data;
   };
 
   const uploadImage = async (data: any, id: string) => {};
