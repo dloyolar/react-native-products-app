@@ -1,6 +1,8 @@
 import React, {createContext, useEffect, useState} from 'react';
 import {Producto} from '../interfaces/appInterfaces';
 import coffeApi from '../api/coffeApi';
+import {ImagePickerResponse} from 'react-native-image-picker';
+import coffeClient from '../api/coffeClient';
 
 type ProductsContextProps = {
   products: Producto[];
@@ -58,7 +60,27 @@ export const ProductsProvider = ({children}: any) => {
     return data;
   };
 
-  const uploadImage = async (data: any, id: string) => {};
+  const uploadImage = async (imgData: ImagePickerResponse, id: string) => {
+    const assets = imgData.assets?.[0];
+    const fileToUpload = {
+      uri: assets?.uri,
+      type: assets?.type,
+      name: assets?.fileName,
+    };
+    const formData = new FormData();
+    formData.append('archivo', fileToUpload);
+    try {
+      const resp = await coffeClient.put(`/uploads/productos/${id}`, formData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(resp);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <ProductsContext.Provider

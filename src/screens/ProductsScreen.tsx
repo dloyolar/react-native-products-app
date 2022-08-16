@@ -8,8 +8,9 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
-import {ProductsContext} from '../context/ProductsContext';
 import {StackScreenProps} from '@react-navigation/stack';
+
+import {ProductsContext} from '../context/ProductsContext';
 import {ProductsStackParams} from '../navigator/ProductsNavigator';
 
 interface Props
